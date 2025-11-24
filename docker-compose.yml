@@ -1,0 +1,97 @@
+services:
+  db:
+    platform: linux/arm64
+    image: mariadb:latest
+    hostname: db-tensor
+    container_name: db-tensor
+    restart: on-failure
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3302:3306"
+    networks:
+      - db
+    volumes:
+      - db:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  cache:
+    platform: linux/amd64
+    image: redis:latest
+    hostname: cache-tensor
+    container_name: cache-tensor
+    restart: on-failure
+    ports:
+      - "6302:6379"
+    networks:
+      - cache
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      start_period: 10s
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  server:
+    platform: linux/arm64
+    hostname: server-tensor
+    container_name: server-tensor
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: dockerfile
+      target: local
+      args:
+        ENV: local
+        WORK_DIR: /workdir
+        INSTALL_DIR: /opt/install
+        PW_DIR: /pwdir
+    ports:
+      - "8002:8000"
+    volumes:
+      - .:/workdir
+    networks:
+      - db
+      - cache
+      - server
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      llm:
+        condition: service_started
+    command: >
+      bash -c "uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload"
+
+
+networks:
+  db:
+    name: db-tensor
+    driver: bridge
+  cache:
+    name: cache-tensor
+    driver: bridge
+  server:
+    name: server-tensor
+    driver: bridge
+  backend:
+    name: backend
+    driver: bridge
+
+volumes:
+  db:
+    name: db-tensor
+
