@@ -1,10 +1,10 @@
 
 from fastapi import APIRouter
 
-from .agent import router as _agent_router
+from .image import router as _image_router
 
 _subrouters = [
-    _agent_router,
+    _image_router,
 ]
 
 router = APIRouter()

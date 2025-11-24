@@ -1,6 +1,6 @@
 ### base image ###
 ARG PYTHON_VERSION=3.13.5
-
+#FROM mwader/static-ffmpeg:latest AS ffmpeg
 FROM python:$PYTHON_VERSION AS base
 
 ## arguements ##
@@ -71,5 +71,9 @@ WORKDIR $WORK_DIR
 COPY --from=builder $INSTALL_DIR $INSTALL_DIR
 COPY . $WORK_DIR
 
+# Copy FFmpeg binaries from static build
+#COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
+#COPY --from=ffmpeg /ffprobe /usr/local/bin/ffprobe
+
 # ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*

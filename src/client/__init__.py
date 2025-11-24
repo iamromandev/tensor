@@ -2,8 +2,8 @@ from collections.abc import AsyncGenerator
 
 from src.core.config import settings
 
-from .agent import AgentClient
 from .cache import CacheClient
+from .image import ImageClient
 
 
 async def get_cache_client(
@@ -12,8 +12,8 @@ async def get_cache_client(
         cache_url=settings.cache_url
     )
 
-async def get_agent_client(
-) -> AsyncGenerator[AgentClient]:
-    yield AgentClient(
+async def get_image_client(
+) -> AsyncGenerator[ImageClient]:
+    yield ImageClient(
 
     )

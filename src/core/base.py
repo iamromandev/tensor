@@ -383,6 +383,6 @@ class BaseService:
     def __init__(self) -> None:
         logger.debug(f"{self._tag}|__init__()")
 
-    @cached_property
+    @property
     def _tag(self) -> str:
         return self.__class__.__name__

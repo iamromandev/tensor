@@ -8,8 +8,8 @@ from src.core.config import settings
 from src.core.error import init_global_errors
 from src.core.middleware import init_process_time_tracing
 from src.data import init_db, run_migrations
-from src.route.agent import router as _agent_router
 from src.route.health import router as _health_router
+from src.route.image import router as _image_router
 
 
 @asynccontextmanager
@@ -20,7 +20,7 @@ async def lifespan(fa: FastAPI):
 
 
 app = FastAPI(
-    title="Agent App",
+    title="Tensor App",
     version=get_app_version(),
     debug=settings.debug,
     lifespan=lifespan
@@ -40,7 +40,7 @@ init_process_time_tracing(app)
 
 routers = [
     _health_router,
-    _agent_router,
+    _image_router,
 ]
 for router in routers:
     app.include_router(router)
