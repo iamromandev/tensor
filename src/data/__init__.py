@@ -42,8 +42,7 @@ def init_db(app: FastAPI) -> None:
     )
 
 
-
-async def run_migrations() -> None:
+async def run_migration() -> None:
     async def run_command(*args):
         process = await asyncio.create_subprocess_exec(
             *args,
@@ -76,3 +75,19 @@ async def get_db_health() -> bool:
     except Exception as error:
         logger.error(f"Error|get_db_health(): {str(error)}")
         return False
+
+
+async def get_db_version() -> str | None:
+    try:
+        conn = Tortoise.get_connection("default")
+
+        row_count, rows = await conn.execute_query("SELECT VERSION() AS version;")
+
+        if row_count > 0 and rows:
+            return rows[0]["version"]
+
+        return None
+
+    except Exception as error:
+        logger.error(f"Error|get_db_version(): {error}")
+        return None

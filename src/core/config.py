@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     env: Annotated[Env, Field(description="Application environment")]
     debug: Annotated[bool, Field(description="Enable debug mode")]
     # db
-    db_connection: Annotated[str, Field(description="Database connection type")]
+    db_schema: Annotated[str, Field(description="Database schema")]
     db_host: Annotated[str, Field(description="Database host")]
     db_port: Annotated[int, Field(description="Database port")]
     db_name: Annotated[str, Field(description="Database name")]
@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     db_password: Annotated[str, Field(description="Database password")]
     db_root_password: Annotated[str, Field(description="Root database password")]
     # cache
-    cache_connection: Annotated[str, Field(description="Cache connection type")]
+    cache_schema: Annotated[str, Field(description="Cache schema")]
     cache_host: Annotated[str, Field(description="Cache host")]
     cache_port: Annotated[int, Field(description="Cache port")]
     cache_user: Annotated[str, Field(description="Cache user")]
@@ -43,18 +43,18 @@ class Settings(BaseSettings):
 
     @cached_property
     def db_url(self) -> str:
-        return f"{self.db_connection}://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"{self.db_schema}://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
     @cached_property
     def cache_url(self) -> RedisDsn:
         if self.is_local:
             return RedisDsn.build(
-                scheme=self.cache_connection,
+                scheme=self.cache_schema,
                 host=self.cache_host,
                 port=self.cache_port,
             )
         return RedisDsn.build(
-            scheme=self.cache_connection,
+            scheme=self.cache_schema,
             host=self.cache_host,
             port=self.cache_port,
             username=self.cache_user,

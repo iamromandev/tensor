@@ -1,4 +1,3 @@
-from functools import cached_property
 from typing import Annotated, Any
 
 import redis.asyncio as redis
@@ -21,9 +20,23 @@ class CacheClient(metaclass=SingletonMeta):
         )
         self._initialized = True
 
-    @cached_property
+    @property
     def _tag(self) -> str:
         return self.__class__.__name__
+
+    async def health(self) -> bool:
+        try:
+            await self._cache.ping()
+            return True
+        except Exception:
+            return False
+
+    async def get_version(self) -> str | None:
+        try:
+            info = await self._cache.info(section="server")
+            return info.get("redis_version")
+        except Exception:
+            return None
 
     async def ping(self) -> Any:
         return await self._cache.ping()

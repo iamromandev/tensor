@@ -33,9 +33,11 @@ services:
     container_name: cache-tensor
     restart: on-failure
     ports:
-      - "6302:6379"
+      - "6372:6379"
     networks:
       - cache
+    volumes:
+      - cache:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       start_period: 10s
@@ -61,6 +63,7 @@ services:
       - "8002:8000"
     volumes:
       - .:/workdir
+      - hf:/root/.cache/huggingface/hub
     networks:
       - db
       - cache
@@ -92,4 +95,8 @@ networks:
 volumes:
   db:
     name: db-tensor
+  cache:
+    name: cache-tensor
+  hf:
+    name: hf-tensor
 
